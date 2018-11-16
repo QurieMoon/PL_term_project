@@ -1,2 +1,2 @@
-# PL_term_project
-PL_term_project repository
+# sclab_SN_project
+This page generated for wep demo implementation as part of Life loging project
