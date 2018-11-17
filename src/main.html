@@ -97,6 +97,7 @@
             $("#loadNode").attr("disabled", true);
             $("#resetNode").attr("disabled", false);
             $("#searchNode").attr("disabled", false);
+            $("#test").attr("disabled", false);
 
             var range = $("#date").val();
             var start_date = new Date(range.split(' ')[0]);
@@ -278,37 +279,39 @@
             //var targetStartNodeList = [];
             var targetAttNodeList   = [];
             for (var startChild of gssNode.children_list){
-                for (var attNode of startChild.children_list){
-                    //in case of end_time has to be added
-                    if(attNode.attribute === attribute){
-                        if      (attribute === "end_time"){
-                            var end_time_split  = attNode.value.split(" ");         //e.g. value = "10:30"
-                            var end_time_arr    = end_time_split[1].split(":");     //e.g. split[1] = "10:30"
-                            var end_time        = parseFloat(end_time_arr[0])       //e.g. "10"
-                                                + parseFloat(end_time_arr[1] / 60); //e.g. "30"
-                            //console.log('#end_time_arr[0] : ' + end_time_arr[0] + ' value : ' + attNode.value);
-                            //console.log('#end_time : ' + end_time + ' value : ' + attNode.value);
-                            if (end_time >= minValue &&
-                                end_time <= maxValue){
+                if(startChild.attribute === "start_time"){
+                    for (var attNode of startChild.children_list){
+                        //in case of end_time has to be added
+                        if(attNode.attribute === attribute){
+                            if      (attribute === "end_time"){
+                                var end_time_split  = attNode.value.split(" ");         //e.g. value = "10:30"
+                                var end_time_arr    = end_time_split[1].split(":");     //e.g. split[1] = "10:30"
+                                var end_time        = parseFloat(end_time_arr[0])       //e.g. "10"
+                                    + parseFloat(end_time_arr[1] / 60); //e.g. "30"
+                                //console.log('#end_time_arr[0] : ' + end_time_arr[0] + ' value : ' + attNode.value);
+                                //console.log('#end_time : ' + end_time + ' value : ' + attNode.value);
+                                if (end_time >= minValue &&
+                                    end_time <= maxValue){
+                                    //targetStartNodeList.push(startChild);
+                                    targetAttNodeList.push(attNode);
+                                }
+                            }
+                            else if      (attribute === "rq_time"){
+                                var rq_time_split  = attNode.value.split("H");          //e.g. value = "8H10M"
+                                var rq_time_arr    = rq_time_split[1].split("M");       //e.g. split[1] = "10M"
+                                var rq_time        = parseFloat(rq_time_split[0])       //e.g. "8"
+                                    + parseFloat(rq_time_arr[0] / 60);   //e.g. "10"
+                                if (rq_time >= minValue &&
+                                    rq_time <= maxValue){
+                                    //targetStartNodeList.push(startChild);
+                                    targetAttNodeList.push(attNode);
+                                }
+                            }
+                            else if (attNode.value >= minValue &&
+                                attNode.value <= maxValue ){
                                 //targetStartNodeList.push(startChild);
                                 targetAttNodeList.push(attNode);
                             }
-                        }
-                        else if      (attribute === "rq_time"){
-                            var rq_time_split  = attNode.value.split("H");          //e.g. value = "8H10M"
-                            var rq_time_arr    = rq_time_split[1].split("M");       //e.g. split[1] = "10M"
-                            var rq_time        = parseFloat(rq_time_split[0])       //e.g. "8"
-                                               + parseFloat(rq_time_arr[0] / 60);   //e.g. "10"
-                            if (rq_time >= minValue &&
-                                rq_time <= maxValue){
-                                //targetStartNodeList.push(startChild);
-                                targetAttNodeList.push(attNode);
-                            }
-                        }
-                        else if (attNode.value >= minValue &&
-                                 attNode.value <= maxValue ){
-                            //targetStartNodeList.push(startChild);
-                            targetAttNodeList.push(attNode);
                         }
                     }
                 }
@@ -356,7 +359,9 @@
             </div>
 
             <h1>Pattern Information</h1>
-            <div class="group last"></div>
+            <div class="group last">
+
+            </div>
         </div>
     </div>
 </body>
