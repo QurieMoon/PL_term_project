@@ -341,10 +341,12 @@
             var tpNodes = [];
             var tpEdges = [];
 
+
             for (const patternNode of foundNodeList){
                 //console.log("\npatternNode.value\n"
                 //    + patternNode.value);
-                tpNodes.push({id: (patternNode.attribute
+                tpNodes.push({id: (patternNode.parents_list[0].value
+                    + patternNode.attribute
                     + patternNode.value),
                     label: ("time : " + patternNode.parents_list[0].value
                     + "\nvalue: " + patternNode.value)});
@@ -353,15 +355,7 @@
             var pNodes = new vis.DataSet(tpNodes);
             var pEdges = new vis.DataSet(tpEdges);
             var data = {nodes: pNodes, edges: pEdges};
-/*
-            var data = {
-                nodes: [{
-                    id: 0,
-                    title: "Loading",
-                    label: "Loading"
-                }], edges: []
-            };
-*/
+
             //네트워크 구조에 데이터 추가
             patternNet = new vis.Network(container, data, options);
             //patternNet.on("click", addNode);
