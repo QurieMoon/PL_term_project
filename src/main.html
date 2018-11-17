@@ -341,7 +341,15 @@
             var tpNodes = [];
             var tpEdges = [];
 
+            // adding root gss_attribute node
+            var GANode_id = (foundNodeList[0].parents_list[0].parents_list[0].attribute
+                + foundNodeList[0].parents_list[0].parents_list[0].value);
+            tpNodes.push({id: GANode_id,
+                    label: (foundNodeList[0].parents_list[0].parents_list[0].value)
+                    + ":" + foundNodeList[0].attribute});
+            const GANode = tpNodes[0];
 
+            // adding nodes which have been searched
             for (const patternNode of foundNodeList){
                 //console.log("\npatternNode.value\n"
                 //    + patternNode.value);
@@ -352,13 +360,18 @@
                     + "\nvalue: " + patternNode.value)});
             }
 
+            // adding edges
+            for (let i = 1; i < tpNodes.length; i++){
+                tpEdges.push({id: get_edge_id(GANode, tpNodes[i]),
+                              from: GANode_id, to: tpNodes[i].id});
+            }
+
             var pNodes = new vis.DataSet(tpNodes);
             var pEdges = new vis.DataSet(tpEdges);
             var data = {nodes: pNodes, edges: pEdges};
 
             //네트워크 구조에 데이터 추가
             patternNet = new vis.Network(container, data, options);
-            //patternNet.on("click", addNode);
             patternNet.fit();
         }
 
