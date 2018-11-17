@@ -30,6 +30,7 @@
         var nodes = null;
         var edges = null;
 
+        var patternNet = null;
         //시각화 초기값
         $(document).ready(() => {
             draw_network();
@@ -82,7 +83,7 @@
                 }
             };
 
-            var data = {nodes: nodes, edges: edges}
+            var data = {nodes: nodes, edges: edges};
 
             //네트워크 구조에 데이터 추가
             network = new vis.Network(container, data, options);
@@ -245,21 +246,13 @@
         // testfunction: function for some tests
         function test_func(manager) {
             //edit here to manipulate test conditions
-            /*
-            var root_node = manager.root;
-            var test_node = manager.gss[$("#gssfortest").val()];
-            let testResult = [];
-            for (const child of test_node.children_list){
-                testResult.push(child.value);
-            }
-            */
             var t_gss = $("#gssfortest").val();
             var t_att = $("#attfortest").val();
             var t_min = $("#minfortest").val();
             var t_max = $("#maxfortest").val();
-            var foundNodeList = find_node(manager, t_gss, t_att, t_min, t_max);
+            foundNodeList = find_node(manager, t_gss, t_att, t_min, t_max);
             var testResult = [];
-            for (var child of foundNodeList){
+            for (const child of foundNodeList){
                 var tmplist = [];
                 tmplist.push(child.parents_list[0].value);
                 tmplist.push(child.attribute);
@@ -267,11 +260,12 @@
                 testResult.push(tmplist);
             }
             testResult = testResult.join("<br>");
-            console.log('\n#testResult :\n' + testResult);
+            //console.log('\n#testResult :\n' + testResult);
             $("#testResult").html(testResult);
+            draw_pattern()
         }
 
-        // findnode: find a node which has specific values,
+        // findnode: find nodes which has specific values,
         // similar to searchNode of SNmanager.js but not same
         function find_node(manager, gss, attribute, minValue, maxValue){
             //var rootNode   = manager.root;
@@ -318,6 +312,69 @@
             }
             return targetAttNodeList;
         }
+
+        //draw_pattern: visualize the pattern searched
+        function draw_pattern(){
+            if (patternNet != null) {
+                patternNet.destroy();
+                patternNet = null;
+            }
+            var container = document.getElementById("patternViewer");
+            //네트워크 시각화 옵션(크기, 색상)
+            var options = {
+                nodes: {
+                    shape: 'dot',
+                    color: 'rgba(50, 50, 50, 1)',
+                    size: 16
+                },
+                layout: {
+                    randomSeed: 20,
+                    improvedLayout: true
+                },
+                physics: true,
+                interaction: {
+                    tooltipDelay: 200,
+                    hideEdgesOnDrag: false
+                }
+            };
+
+            var tpNodes = [];
+            var tpEdges = [];
+
+            // adding root gss_attribute node
+            var GANode_id = (foundNodeList[0].parents_list[0].parents_list[0].attribute
+                + foundNodeList[0].parents_list[0].parents_list[0].value);
+            tpNodes.push({id: GANode_id,
+                    label: (foundNodeList[0].parents_list[0].parents_list[0].value)
+                    + ":" + foundNodeList[0].attribute});
+            const GANode = tpNodes[0];
+
+            // adding nodes which have been searched
+            for (const patternNode of foundNodeList){
+                //console.log("\npatternNode.value\n"
+                //    + patternNode.value);
+                tpNodes.push({id: (patternNode.parents_list[0].value
+                    + patternNode.attribute
+                    + patternNode.value),
+                    label: ("time : " + patternNode.parents_list[0].value
+                    + "\nvalue: " + patternNode.value)});
+            }
+
+            // adding edges
+            for (let i = 1; i < tpNodes.length; i++){
+                tpEdges.push({id: get_edge_id(GANode, tpNodes[i]),
+                              from: GANode_id, to: tpNodes[i].id});
+            }
+
+            var pNodes = new vis.DataSet(tpNodes);
+            var pEdges = new vis.DataSet(tpEdges);
+            var data = {nodes: pNodes, edges: pEdges};
+
+            //네트워크 구조에 데이터 추가
+            patternNet = new vis.Network(container, data, options);
+            patternNet.fit();
+        }
+
     </script>
 </head>
 
@@ -360,7 +417,7 @@
 
             <h1>Pattern Information</h1>
             <div class="group last">
-
+                <div id="patternViewer"></div>
             </div>
         </div>
     </div>

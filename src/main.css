@@ -87,3 +87,9 @@ body {
     overflow: auto;
     font-size: 15px;
 }
+
+.wrapper .panel .group.last #patternViewer {
+    height: 450px;
+    border: 1px solid lightgray;
+    margin-bottom: 5px;
+}
