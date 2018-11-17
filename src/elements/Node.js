@@ -15,6 +15,7 @@ function Node(attribute, value) {
     this.parents_list = [];
     this.children_list = [];
     this.edge_list = [];
+    this.meeting_people_level = "Default_val";
 }
 Node.prototype.getChildByAttr = function(attribute){
     //자식중 parameter와 동일한 attribute를 가지는 자식이 있다면 return
