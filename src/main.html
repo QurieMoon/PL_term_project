@@ -252,7 +252,7 @@
             var t_max = $("#maxfortest").val();
             foundNodeList = find_node(manager, t_gss, t_att, t_min, t_max);
             var testResult = [];
-            for (var child of foundNodeList){
+            for (const child of foundNodeList){
                 var tmplist = [];
                 tmplist.push(child.parents_list[0].value);
                 tmplist.push(child.attribute);
@@ -265,7 +265,7 @@
             draw_pattern()
         }
 
-        // findnode: find a node which has specific values,
+        // findnode: find nodes which has specific values,
         // similar to searchNode of SNmanager.js but not same
         function find_node(manager, gss, attribute, minValue, maxValue){
             //var rootNode   = manager.root;
@@ -337,13 +337,23 @@
                     hideEdgesOnDrag: false
                 }
             };
+
             var tpNodes = [];
             var tpEdges = [];
 
+            for (const patternNode of foundNodeList){
+                //console.log("\npatternNode.value\n"
+                //    + patternNode.value);
+                tpNodes.push({id: (patternNode.attribute
+                    + patternNode.value),
+                    label: ("time : " + patternNode.parents_list[0].value
+                    + "\nvalue: " + patternNode.value)});
+            }
+
             var pNodes = new vis.DataSet(tpNodes);
             var pEdges = new vis.DataSet(tpEdges);
-            //var data = {nodes: pNodes, edges: pEdges};
-
+            var data = {nodes: pNodes, edges: pEdges};
+/*
             var data = {
                 nodes: [{
                     id: 0,
@@ -351,7 +361,7 @@
                     label: "Loading"
                 }], edges: []
             };
-
+*/
             //네트워크 구조에 데이터 추가
             patternNet = new vis.Network(container, data, options);
             //patternNet.on("click", addNode);
