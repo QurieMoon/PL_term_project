@@ -81,3 +81,9 @@ body {
     flex-grow: 1;
     margin-bottom: 0;
 }
+
+.wrapper .panel .group .testrows {
+    height: 180px;
+    overflow: auto;
+    font-size: 15px;
+}
