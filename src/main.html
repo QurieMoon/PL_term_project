@@ -576,7 +576,7 @@
             // adding root gss_attribute nodes
             const gss0      = foundNodeList[0].parents_list[0].parents_list[0].value;
             var GANode0_id = (foundNodeList[0].parents_list[0].parents_list[0].attribute
-                            + foundNodeList[0].parents_list[0].parents_list[0].value);
+                            + foundNodeList[0].parents_list[0].parents_list[0].value +'gss0'); //last correction
             tpNodes.push({id: GANode0_id,
                 label:       (foundNodeList[0].parents_list[0].parents_list[0].value)
                     + ":" +   foundNodeList[0].attribute ,group:"g_light_purple"});
@@ -584,7 +584,7 @@
 
             const gss1      = foundNodeList[1].parents_list[0].parents_list[0].value;
             var GANode1_id = (foundNodeList[1].parents_list[0].parents_list[0].attribute
-                            + foundNodeList[1].parents_list[0].parents_list[0].value);
+                            + foundNodeList[1].parents_list[0].parents_list[0].value +'gss1'); //last correction
             tpNodes.push({id: GANode1_id,
                 label:       (foundNodeList[1].parents_list[0].parents_list[0].value)
                     + ":" +   foundNodeList[1].attribute ,group:"g_light_yellow"});
