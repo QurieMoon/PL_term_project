@@ -55,6 +55,10 @@ SNmanager.prototype.makeSN = function(dataset){
     var eatingFrequency = 0;
     var sleepingFrequency = 0;
 
+    var person_info_activity = {}; //activity //with whom
+    var person_info_eating = {}; //eating //with whom
+    var person_info_sleeping = {}; //sleeping //with whom
+
     for(var idx=0; idx<dataset.length; idx++){
 
         var one_data = dataset[idx];
@@ -80,8 +84,42 @@ SNmanager.prototype.makeSN = function(dataset){
                 continue;
                 console.log('coupled');
             }
+
+            if((targetGss == this.gss['activity'])&&(this.attributes[j+1]=='person')){
+                var person_name = one_data[j+1];
+
+                if(person_name in person_info_activity){
+                    person_info_activity[person_name] += 1;
+                }else{
+                    person_info_activity[person_name] = 1;
+                }
+
+
+            }else if((targetGss == this.gss['food'])&&(this.attributes[j+1]=='person')){
+                var person_name = one_data[j+1];
+
+                if(person_name in person_info_eating){
+                    person_info_eating[person_name] += 1;
+                }else{
+                    person_info_eating[person_name] = 1;
+                }
+
+
+            }else if((targetGss == this.gss['sleep'])&&(this.attributes[j+1]=='person')){
+                var person_name = one_data[j+1];
+
+                if(person_name in person_info_sleeping){
+                    person_info_sleeping[person_name] += 1;
+                }else{
+                    person_info_sleeping[person_name] = 1;
+                }
+
+            }
+
             this.nodeDict[this.attributes[j+1], one_data[j+1]] = tmpNode;
             this.addNode(startNode, tmpNode);
+
+
         } //finishing adding other attr of given start_time node
 
         //add the requiring time node
@@ -150,6 +188,82 @@ SNmanager.prototype.makeSN = function(dataset){
 
     this.addNode(this.gss['sleep'], total_avg_sleep_node);
     this.addNode(this.gss['food'], total_avg_eating_node);
+
+    //add the information related to the attr. 'person'
+    console.log(`activity: ${Object.keys(person_info_activity)}`);
+
+    console.log(`check: ${this.gss['sleep'].children_list.length}`);
+    var activity_children_dates = this.gss['activity'].children_list;
+    var meal_children_dates = this.gss['food'].children_list;
+    var sleeping_children_dates = this.gss['sleep'].children_list;
+
+    for(var i_1 = 0; i_1 < activity_children_dates.length; i_1++){
+        var cur_child_date = activity_children_dates[i_1];
+
+        cur_child_date.children_list.forEach(function(element){
+            if(element.attribute == 'person'){
+                //activity && person node
+                if(person_info_activity[element.value]>9){
+                    element.meeting_people_level = 'blue';
+                }else if(person_info_activity[element.value]>6){
+                    element.meeting_people_level = 'green';
+                }else if(person_info_activity[element.value]>3){
+                    element.meeting_people_level = 'yellow';
+                }else{
+                    element.meeting_people_level = 'red';
+                }
+
+
+            }
+        });
+
+    } //activity check
+
+    for(var i_2 = 0; i_2 < meal_children_dates.length; i_2++){
+        var cur_child_date_2 = meal_children_dates[i_2];
+
+        cur_child_date_2.children_list.forEach(function(element){
+            if(element.attribute == 'person'){
+                //food && person node
+                if(person_info_eating[element.value]>9){
+                    element.meeting_people_level = 'blue';
+                }else if(person_info_eating[element.value]>6){
+                    element.meeting_people_level = 'green';
+                }else if(person_info_eating[element.value]>3){
+                    element.meeting_people_level = 'yellow';
+                }else{
+                    element.meeting_people_level = 'red';
+                }
+
+
+            }
+        });
+
+    } //meal check
+
+    for(var i_3 = 0; i_3 < sleeping_children_dates.length; i_3++){
+        var cur_child_date_3 = sleeping_children_dates[i_3];
+
+        cur_child_date_3.children_list.forEach(function(element){
+            if(element.attribute == 'person'){
+                //sleeping && person node
+                if(person_info_sleeping[element.value]>9){
+                    element.meeting_people_level = 'blue';
+                }else if(person_info_sleeping[element.value]>6){
+                    element.meeting_people_level = 'green';
+                }else if(person_info_sleeping[element.value]>3){
+                    element.meeting_people_level = 'yellow';
+                }else{
+                    element.meeting_people_level = 'red';
+                }
+
+
+            }
+        });
+
+    } //sleeping check
+
+
 
 }
 
