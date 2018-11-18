@@ -380,8 +380,7 @@
             var options = {
                 nodes: {
                     shape: 'dot',
-                    color: 'rgba(50, 50, 50, 1)',
-                    size: 16
+                    size: 16 //color: 'rgba(50, 50, 50, 1)',
                 },
                 layout: {
                     randomSeed: 20,
@@ -391,7 +390,33 @@
                 interaction: {
                     tooltipDelay: 200,
                     hideEdgesOnDrag: false
+                },
+                groups:{"g_blue":{
+                        color:{
+                            background:'blue'
+                            //border:'maroon'}
+                        }
+                    },"g_green":{
+                        color:{
+                            background:'green'
+                            //border:'maroon'}
+                        }
+                    },"g_yellow":{
+                        color:{
+                            background:'yellow'
+                            //border:'maroon'}
+                        }
+                    },"g_red":{
+                        color:{
+                            background:'red'
+                            //border:'maroon'}
+                        }
+                    },"g_default":{
+                        color: 'rgba(50, 50, 50, 1)'
+                    }
+
                 }
+
             };
 
             var tpNodes = [];
@@ -409,11 +434,51 @@
             for (const patternNode of foundNodeList){
                 //console.log("\npatternNode.value\n"
                 //    + patternNode.value);
-                tpNodes.push({id: (patternNode.parents_list[0].value
+                //here
+                //start 1
+                if(patternNode.attribute == 'person' && patternNode.meeting_people_level == 'blue'){
+                    tpNodes.push({id: (patternNode.parents_list[0].value
+                            + patternNode.attribute
+                            + patternNode.value),
+                        label: ("time : " + patternNode.parents_list[0].value
+                            + "\nvalue: " + patternNode.value), group: "g_blue"});
+
+                }else if(patternNode.attribute == 'person' && patternNode.meeting_people_level == 'green'){
+                    tpNodes.push({id: (patternNode.parents_list[0].value
+                            + patternNode.attribute
+                            + patternNode.value),
+                        label: ("time : " + patternNode.parents_list[0].value
+                            + "\nvalue: " + patternNode.value), group: "g_green"});
+
+                }else if(patternNode.attribute == 'person' && patternNode.meeting_people_level == 'yellow'){
+                    tpNodes.push({id: (patternNode.parents_list[0].value
+                            + patternNode.attribute
+                            + patternNode.value),
+                        label: ("time : " + patternNode.parents_list[0].value
+                            + "\nvalue: " + patternNode.value), group: "g_yellow"});
+
+                }else if(patternNode.attribute == 'person' && patternNode.meeting_people_level == 'red'){
+                    tpNodes.push({id: (patternNode.parents_list[0].value
+                            + patternNode.attribute
+                            + patternNode.value),
+                        label: ("time : " + patternNode.parents_list[0].value
+                            + "\nvalue: " + patternNode.value), group: "g_red"});
+
+                }else{
+                    tpNodes.push({id: (patternNode.parents_list[0].value
+                            + patternNode.attribute
+                            + patternNode.value),
+                        label: ("time : " + patternNode.parents_list[0].value
+                            + "\nvalue: " + patternNode.value), group: "g_default"});
+
+                }
+
+                //original code
+                /* tpNodes.push({id: (patternNode.parents_list[0].value
                         + patternNode.attribute
                         + patternNode.value),
                     label: ("time : " + patternNode.parents_list[0].value
-                        + "\nvalue: " + patternNode.value)});
+                        + "\nvalue: " + patternNode.value)}); */
             }
 
             // adding edges
