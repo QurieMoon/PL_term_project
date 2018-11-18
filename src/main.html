@@ -243,7 +243,7 @@
             edges.remove(get_edge_id(parent_node, child_node));
         }
         
-        // testfunction: function for some tests
+        // testfunction: find the pattern concerned with condition(s)
         function test_func(manager) {
             //edit here to manipulate test conditions
 
@@ -260,10 +260,12 @@
                 tmplist.push(child.value);
                 testResult0.push(tmplist);
             }
-            testResult0 = testResult0.join("<br>");
+
 
             //search condition 0
             if (!document.getElementById("gssfortest1").value){
+                testResult0.unshift("...SEARCHED PATTERN UNDER ONLY 1 CONDITION...");
+                testResult0 = testResult0.join("<br>");
                 $("#testResult").html(testResult0);
                 draw_pattern(foundNodeList0);
             }
@@ -294,26 +296,10 @@
                     tmplist.push(child.value);
                     testResult1.push(tmplist);
                 }
+                testResult1.unshift("...SEARCHED PATTERN UNDER 2 CONDITIONS...");
                 testResult1 = testResult1.join("<br>");
                 $("#testResult").html(testResult1);
                 draw_complex_pattern(foundNodeList);
-/*
-                var testResult1 = [];
-                for (const child of foundNodeList1){
-                    let tmplist = [];
-                    tmplist.push(child.parents_list[0].value);
-                    tmplist.push(child.attribute);
-                    tmplist.push(child.value);
-                    testResult1.push(tmplist);
-                }
-                testResult1 = testResult1.join("<br>");
-                var testResult = [];
-                testResult.push(testResult0);
-                testResult.push(testResult1);
-                testResult = testResult.join("<br>");
-                $("#testResult").html(testResult);
-                draw_pattern(foundNodeList0);
-*/
             }
         }
 
@@ -377,7 +363,7 @@
                 patternNet.destroy();
                 patternNet = null;
             }
-            var container = document.getElementById("patternViewer");
+            var container = document.getElementById("subgraphViewer");
             //네트워크 시각화 옵션(크기, 색상)
             var options = {
                 nodes: {
@@ -439,7 +425,7 @@
                 patternNet.destroy();
                 patternNet = null;
             }
-            var container = document.getElementById("patternViewer");
+            var container = document.getElementById("subgraphViewer");
             //네트워크 시각화 옵션(크기, 색상)
             var options = {
                 nodes: {
@@ -553,7 +539,12 @@
 <body>
     <div class="wrapper">
         <div class="viewer">
-            <div id="networkViewer"></div>
+            <div class="graphViewer">
+                <div id="mainName"><h1>Main Graph</h1></div>
+                <div id="subName"><h1>Sub Graph</h1></div>
+                <div id="networkViewer"></div>
+                <div id="subgraphViewer"></div>
+            </div>
             <div id="timeline_visualization"></div>
         </div>
 
@@ -592,12 +583,13 @@
                 <div class="row">
                     <button class="fit" id="test" onclick="test_func(manager);" disabled>Search Patterns!</button>
                 </div>
-                <div id="testResult" class="testrows"></div>
+
             </div>
 
             <h1>Pattern Information</h1>
             <div class="group last">
-                <div id="patternViewer"></div>
+                <div id="testResult" class="testrows"></div>
+
             </div>
         </div>
     </div>
