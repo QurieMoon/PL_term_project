@@ -262,11 +262,13 @@
             }
             testResult0 = testResult0.join("<br>");
 
-                        //search condition 0
+            //search condition 0
             if (!document.getElementById("gssfortest1").value){
                 $("#testResult").html(testResult0);
                 draw_pattern(foundNodeList0);
-            } else {    //search condition 1
+            }
+            //search condition 1
+            else {
                 var t_gss1 = $("#gssfortest1").val();
                 var t_att1 = $("#attfortest1").val();
                 var t_min1 = $("#minfortest1").val();
@@ -294,7 +296,7 @@
                 }
                 testResult1 = testResult1.join("<br>");
                 $("#testResult").html(testResult1);
-                draw_pattern(foundNodeList0);
+                draw_complex_pattern(foundNodeList);
 /*
                 var testResult1 = [];
                 for (const child of foundNodeList1){
@@ -422,6 +424,120 @@
                               from: GANode_id, to: tpNodes[i].id});
             }
 
+            var pNodes = new vis.DataSet(tpNodes);
+            var pEdges = new vis.DataSet(tpEdges);
+            var data = {nodes: pNodes, edges: pEdges};
+
+            //네트워크 구조에 데이터 추가
+            patternNet = new vis.Network(container, data, options);
+            patternNet.fit();
+        }
+
+        //draw_complex_pattern: visualize the complex pattern searched
+        function draw_complex_pattern(foundNodeList){
+            if (patternNet != null) {
+                patternNet.destroy();
+                patternNet = null;
+            }
+            var container = document.getElementById("patternViewer");
+            //네트워크 시각화 옵션(크기, 색상)
+            var options = {
+                nodes: {
+                    shape: 'dot',
+                    color: 'rgba(50, 50, 50, 1)',
+                    size: 16
+                },
+                layout: {
+                    randomSeed: 20,
+                    improvedLayout: true
+                },
+                physics: true,
+                interaction: {
+                    tooltipDelay: 200,
+                    hideEdgesOnDrag: false
+                }
+            };
+
+            var tpNodes = [];
+            var tpEdges = [];
+////////
+            // adding root gss_attribute nodes
+            const gss0      = foundNodeList[0].parents_list[0].parents_list[0].value;
+            var GANode0_id = (foundNodeList[0].parents_list[0].parents_list[0].attribute
+                            + foundNodeList[0].parents_list[0].parents_list[0].value);
+            tpNodes.push({id: GANode0_id,
+                label:       (foundNodeList[0].parents_list[0].parents_list[0].value)
+                    + ":" +   foundNodeList[0].attribute});
+            const GANode0 = tpNodes[0];
+
+            const gss1      = foundNodeList[1].parents_list[0].parents_list[0].value;
+            var GANode1_id = (foundNodeList[1].parents_list[0].parents_list[0].attribute
+                            + foundNodeList[1].parents_list[0].parents_list[0].value);
+            tpNodes.push({id: GANode1_id,
+                label:       (foundNodeList[1].parents_list[0].parents_list[0].value)
+                    + ":" +   foundNodeList[1].attribute});
+            const GANode1 = tpNodes[1];
+
+
+            var att0dic = {};
+            var att1dic = {};
+            var daydic  = {};
+
+            // adding nodes which have been searched
+            for (let i = 0; i < foundNodeList.length; i++){
+                // nodes from condition0
+                if(i % 2 === 0){
+                    let tmpday = { id:foundNodeList[i].parents_list[0].value.split(' ')[0],
+                        label:foundNodeList[i].parents_list[0].value.split(' ')[0]};
+                    let tmpatt = {id:(foundNodeList[i].parents_list[0].value
+                            + foundNodeList[i].attribute
+                            + foundNodeList[i].value),
+                        label: ("time : "
+                            + foundNodeList[i].parents_list[0].value
+                            + "\nvalue: "
+                            + foundNodeList[i].value)};
+
+                    if(!(foundNodeList[i].parents_list[0].value.split(' ')[0] in daydic )){
+                        tpNodes.push(tmpday);
+                        daydic[foundNodeList[i].parents_list[0].value.split(' ')[0]] = tmpday;
+                    }
+                    if(!(foundNodeList[i].parents_list[0].value         in att0dic)){
+                        tpNodes.push(tmpatt);
+                        att0dic[(foundNodeList[i].parents_list[0].value)] = tmpatt;
+
+                        // adding edges
+                        tpEdges.push({id: get_edge_id(GANode0, tmpatt),
+                            from: GANode0_id, to: tmpatt.id});
+                        tpEdges.push({id: get_edge_id(tmpatt, tmpday),
+                            from: tmpatt.id, to: tmpday.id});
+                    }
+                }
+                // nodes from condition1
+                else{
+                    let tmpday = { id:foundNodeList[i].parents_list[0].value.split(' ')[0],
+                        label:foundNodeList[i].parents_list[0].value.split(' ')[0]};
+                    let tmpatt = {id:(foundNodeList[i].parents_list[0].value
+                            + foundNodeList[i].attribute
+                            + foundNodeList[i].value),
+                        label: ("time : "
+                            + foundNodeList[i].parents_list[0].value
+                            + "\nvalue: "
+                            + foundNodeList[i].value)};
+
+                    if(!(foundNodeList[i].parents_list[0].value         in att1dic)){
+                        tpNodes.push(tmpatt);
+                        att1dic[(foundNodeList[i].parents_list[0].value)] = tmpatt;
+
+                        // adding edges
+                        tpEdges.push({id: get_edge_id(GANode1, tmpatt),
+                            from: GANode1_id, to: tmpatt.id});
+                        tpEdges.push({id: get_edge_id(tmpatt, tmpday),
+                            from: tmpatt.id, to: tmpday.id});
+                    }
+                }
+
+            }
+////////
             var pNodes = new vis.DataSet(tpNodes);
             var pEdges = new vis.DataSet(tpEdges);
             var data = {nodes: pNodes, edges: pEdges};
