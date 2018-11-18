@@ -290,27 +290,65 @@
             nodes.remove(child_node.id);
             edges.remove(get_edge_id(parent_node, child_node));
         }
-
-        // testfunction: function for some tests
+      
+        // testfunction: find the pattern concerned with condition(s)
         function test_func(manager) {
             //edit here to manipulate test conditions
-            var t_gss = $("#gssfortest").val();
-            var t_att = $("#attfortest").val();
-            var t_min = $("#minfortest").val();
-            var t_max = $("#maxfortest").val();
-            foundNodeList = find_node(manager, t_gss, t_att, t_min, t_max);
-            var testResult = [];
-            for (const child of foundNodeList){
-                var tmplist = [];
+
+            var t_gss0 = $("#gssfortest").val();
+            var t_att0 = $("#attfortest").val();
+            var t_min0 = $("#minfortest").val();
+            var t_max0 = $("#maxfortest").val();
+            var foundNodeList0 = find_node(manager, t_gss0, t_att0, t_min0, t_max0);
+            var testResult0 = [];
+            for (const child of foundNodeList0){
+                let tmplist = [];
                 tmplist.push(child.parents_list[0].value);
                 tmplist.push(child.attribute);
                 tmplist.push(child.value);
-                testResult.push(tmplist);
+                testResult0.push(tmplist);
             }
-            testResult = testResult.join("<br>");
-            //console.log('\n#testResult :\n' + testResult);
-            $("#testResult").html(testResult);
-            draw_pattern()
+
+
+            //search condition 0
+            if (!document.getElementById("gssfortest1").value){
+                testResult0.unshift("...SEARCHED PATTERN UNDER ONLY 1 CONDITION...");
+                testResult0 = testResult0.join("<br>");
+                $("#testResult").html(testResult0);
+                draw_pattern(foundNodeList0);
+            }
+            //search condition 1
+            else {
+                var t_gss1 = $("#gssfortest1").val();
+                var t_att1 = $("#attfortest1").val();
+                var t_min1 = $("#minfortest1").val();
+                var t_max1 = $("#maxfortest1").val();
+                var foundNodeList1 = find_node(manager, t_gss1, t_att1, t_min1, t_max1);
+
+                var foundNodeList = [];
+                for (const fl0_node of foundNodeList0) {
+                    for (const fl1_node of foundNodeList1){
+                        if (fl0_node.parents_list[0].value.split(' ')[0]
+                            == fl1_node.parents_list[0].value.split(' ')[0]){
+                            // find intersection
+                            foundNodeList.push(fl0_node);
+                            foundNodeList.push(fl1_node);
+                        }
+                    }
+                }
+                var testResult1 = [];
+                for (const child of foundNodeList){
+                    let tmplist = [];
+                    tmplist.push(child.parents_list[0].value);
+                    tmplist.push(child.attribute);
+                    tmplist.push(child.value);
+                    testResult1.push(tmplist);
+                }
+                testResult1.unshift("...SEARCHED PATTERN UNDER 2 CONDITIONS...");
+                testResult1 = testResult1.join("<br>");
+                $("#testResult").html(testResult1);
+                draw_complex_pattern(foundNodeList);
+            }
         }
 
         // findnode: find nodes which has specific values,
@@ -350,15 +388,13 @@
                                 }
                             }
                             else if (typeof minValue == 'number'){
-                                if (attNode.value >= minValue &&    
+                                if (attNode.value >= minValue &&
                                     attNode.value <= maxValue){
-                                    //targetStartNodeList.push(startChild);
                                     targetAttNodeList.push(attNode);
                                 }
                             }
-                            else if (typeof minValue == 'string'){
-                                if (attNode.value.indexOf(minValue) != -1){
-                                   //targetStartNodeList.push(startChild);
+                            else if (typeof minValue == 'string') {
+                                if (attNode.value.indexOf(minValue) != -1) {
                                     targetAttNodeList.push(attNode);
                                 }
                             }
@@ -369,8 +405,8 @@
             return targetAttNodeList;
         }
 
-        //draw_pattern: visualize the pattern searched
-        function draw_pattern(){
+        //draw_pattern: visualize the simple pattern searched
+        function draw_pattern(foundNodeList){
             if (patternNet != null) {
                 patternNet.destroy();
                 patternNet = null;
@@ -496,55 +532,179 @@
             patternNet.fit();
         }
 
+        //draw_complex_pattern: visualize the complex pattern searched
+        function draw_complex_pattern(foundNodeList){
+            if (patternNet != null) {
+                patternNet.destroy();
+                patternNet = null;
+            }
+            var container = document.getElementById("subgraphViewer");
+            //네트워크 시각화 옵션(크기, 색상)
+            var options = {
+                nodes: {
+                    shape: 'dot',
+                    color: 'rgba(50, 50, 50, 1)',
+                    size: 16
+                },
+                layout: {
+                    randomSeed: 20,
+                    improvedLayout: true
+                },
+                physics: true,
+                interaction: {
+                    tooltipDelay: 200,
+                    hideEdgesOnDrag: false
+                }
+            };
+
+            var tpNodes = [];
+            var tpEdges = [];
+////////
+            // adding root gss_attribute nodes
+            const gss0      = foundNodeList[0].parents_list[0].parents_list[0].value;
+            var GANode0_id = (foundNodeList[0].parents_list[0].parents_list[0].attribute
+                            + foundNodeList[0].parents_list[0].parents_list[0].value);
+            tpNodes.push({id: GANode0_id,
+                label:       (foundNodeList[0].parents_list[0].parents_list[0].value)
+                    + ":" +   foundNodeList[0].attribute});
+            const GANode0 = tpNodes[0];
+
+            const gss1      = foundNodeList[1].parents_list[0].parents_list[0].value;
+            var GANode1_id = (foundNodeList[1].parents_list[0].parents_list[0].attribute
+                            + foundNodeList[1].parents_list[0].parents_list[0].value);
+            tpNodes.push({id: GANode1_id,
+                label:       (foundNodeList[1].parents_list[0].parents_list[0].value)
+                    + ":" +   foundNodeList[1].attribute});
+            const GANode1 = tpNodes[1];
+
+
+            var att0dic = {};
+            var att1dic = {};
+            var daydic  = {};
+
+            // adding nodes which have been searched
+            for (let i = 0; i < foundNodeList.length; i++){
+                // nodes from condition0
+                if(i % 2 === 0){
+                    let tmpday = { id:foundNodeList[i].parents_list[0].value.split(' ')[0],
+                        label:foundNodeList[i].parents_list[0].value.split(' ')[0]};
+                    let tmpatt = {id:(foundNodeList[i].parents_list[0].value
+                            + foundNodeList[i].attribute
+                            + foundNodeList[i].value),
+                        label: ("time : "
+                            + foundNodeList[i].parents_list[0].value
+                            + "\nvalue: "
+                            + foundNodeList[i].value)};
+
+                    if(!(foundNodeList[i].parents_list[0].value.split(' ')[0] in daydic )){
+                        tpNodes.push(tmpday);
+                        daydic[foundNodeList[i].parents_list[0].value.split(' ')[0]] = tmpday;
+                    }
+                    if(!(foundNodeList[i].parents_list[0].value         in att0dic)){
+                        tpNodes.push(tmpatt);
+                        att0dic[(foundNodeList[i].parents_list[0].value)] = tmpatt;
+
+                        // adding edges
+                        tpEdges.push({id: get_edge_id(GANode0, tmpatt),
+                            from: GANode0_id, to: tmpatt.id});
+                        tpEdges.push({id: get_edge_id(tmpatt, tmpday),
+                            from: tmpatt.id, to: tmpday.id});
+                    }
+                }
+                // nodes from condition1
+                else{
+                    let tmpday = { id:foundNodeList[i].parents_list[0].value.split(' ')[0],
+                        label:foundNodeList[i].parents_list[0].value.split(' ')[0]};
+                    let tmpatt = {id:(foundNodeList[i].parents_list[0].value
+                            + foundNodeList[i].attribute
+                            + foundNodeList[i].value),
+                        label: ("time : "
+                            + foundNodeList[i].parents_list[0].value
+                            + "\nvalue: "
+                            + foundNodeList[i].value)};
+
+                    if(!(foundNodeList[i].parents_list[0].value         in att1dic)){
+                        tpNodes.push(tmpatt);
+                        att1dic[(foundNodeList[i].parents_list[0].value)] = tmpatt;
+
+                        // adding edges
+                        tpEdges.push({id: get_edge_id(GANode1, tmpatt),
+                            from: GANode1_id, to: tmpatt.id});
+                        tpEdges.push({id: get_edge_id(tmpatt, tmpday),
+                            from: tmpatt.id, to: tmpday.id});
+                    }
+                }
+
+            }
+////////
+            var pNodes = new vis.DataSet(tpNodes);
+            var pEdges = new vis.DataSet(tpEdges);
+            var data = {nodes: pNodes, edges: pEdges};
+
+            //네트워크 구조에 데이터 추가
+            patternNet = new vis.Network(container, data, options);
+            patternNet.fit();
+        }
+
     </script>
 </head>
 
 <body>
-<div class="wrapper">
-    <div class="viewer">
-        <div class="graphViewer">
-            <div id="networkViewer"></div>
-            <div id="subgraphViewer"></div>
+    <div class="wrapper">
+        <div class="viewer">
+            <div class="graphViewer">
+                <div id="mainName"><h1>Main Graph</h1></div>
+                <div id="subName"><h1>Sub Graph</h1></div>
+                <div id="networkViewer"></div>
+                <div id="subgraphViewer"></div>
+            </div>
+            <div id="timeline_visualization"></div>
         </div>
-        <div id="timeline_visualization"></div>
+
+        <div class="panel">
+            <h1>Keyword Input</h1>
+            <div class="group">
+                <div class="row">
+                    <div class="label">Date</div>
+                    <input class="fit" id="date">
+                </div>
+                <div class="row">
+                    <div class="label">Person Index</div>
+                    <input id="personIndex" class="fit" type="number" step="1" min="0" value="1">
+                </div>
+                <div class="row">
+                    <div class="label">Data</div>
+                    <button class="fit" id="loadNode" onclick="loadData();">Load</button>
+                    <button class="fit" id="resetNode" onclick="resetAllNodes();" disabled>Reset</button>
+                </div>
+            </div>
+
+            <h1>Pattern Search</h1>
+            <div class="group">
+                <div class="row">
+                    <input class="fit" id='gssfortest' type="text" placeholder="gss0">
+                    <input class="fit" id='attfortest' type="text" placeholder="att0">
+                    <input class="fit" id='minfortest' type="text" placeholder="min0/string">
+                    <input class="fit" id='maxfortest' type="text" placeholder="max0">
+                </div>
+                <div class="row">
+                    <input class="fit" id='gssfortest1' type="text" placeholder="gss1">
+                    <input class="fit" id='attfortest1' type="text" placeholder="att1">
+                    <input class="fit" id='minfortest1' type="text" placeholder="min1/string">
+                    <input class="fit" id='maxfortest1' type="text" placeholder="max1">
+                </div>
+                <div class="row">
+                    <button class="fit" id="test" onclick="test_func(manager);" disabled>Search Patterns!</button>
+                </div>
+
+            </div>
+
+            <h1>Pattern Information</h1>
+            <div class="group last">
+                <div id="testResult" class="testrows"></div>
+
+            </div>
+        </div>
     </div>
-
-    <div class="panel">
-        <h1>Keyword Input</h1>
-        <div class="group">
-            <div class="row">
-                <div class="label">Date</div>
-                <input class="fit" id="date">
-            </div>
-            <div class="row">
-                <div class="label">Person Index</div>
-                <input id="personIndex" class="fit" type="number" step="1" min="0" value="1">
-            </div>
-            <div class="row">
-                <div class="label">Data</div>
-                <button class="fit" id="loadNode" onclick="loadData();">Load</button>
-                <button class="fit" id="resetNode" onclick="resetAllNodes();" disabled>Reset</button>
-            </div>
-        </div>
-
-        <h1>Pattern Search</h1>
-        <div class="group">
-            <div class="row">
-                <input class="fit" id='gssfortest' type="text" placeholder="gssfortest!">
-                <input class="fit" id='attfortest' type="text" placeholder="attfortest!">
-                <input class="fit" id='minfortest' type="text" placeholder="minfortest!">
-                <input class="fit" id='maxfortest' type="text" placeholder="maxfortest!">
-                <button class="fit" id="test" onclick="test_func(manager);" disabled>Test</button>
-            </div>
-            <div id="testResult" class="testrows"></div>
-        </div>
-
-        <h1>Pattern Information</h1>
-        <div class="group last">
-            <div id="patternViewer"></div>
-        </div>
-
-    </div>
-</div>
 </body>
 </html>
