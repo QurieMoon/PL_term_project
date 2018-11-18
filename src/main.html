@@ -554,7 +554,21 @@
                 interaction: {
                     tooltipDelay: 200,
                     hideEdgesOnDrag: false
+                },
+                groups:{"g_light_purple": {
+                        color: 'rgba(219, 112, 147, 0.5)' //128,0,128,
+                    },"g_purple":{
+                        color: 'rgba(219, 112, 147, 1)' //128,0,128,
+                    },"g_light_yellow":{
+                        color: 'rgba(0,180,137, 0.5)'
+                    },"g_yellow":{
+                        color: 'rgba(0,180,137,1)'//00b489 //0,180,137,1 //255, 255, 0, 1
+                    },"g_default":{
+                        color: 'rgba(50, 50, 50, 1)'
+                    }
+
                 }
+
             };
 
             var tpNodes = [];
@@ -566,7 +580,7 @@
                             + foundNodeList[0].parents_list[0].parents_list[0].value);
             tpNodes.push({id: GANode0_id,
                 label:       (foundNodeList[0].parents_list[0].parents_list[0].value)
-                    + ":" +   foundNodeList[0].attribute});
+                    + ":" +   foundNodeList[0].attribute ,group:"g_light_purple"});
             const GANode0 = tpNodes[0];
 
             const gss1      = foundNodeList[1].parents_list[0].parents_list[0].value;
@@ -574,9 +588,8 @@
                             + foundNodeList[1].parents_list[0].parents_list[0].value);
             tpNodes.push({id: GANode1_id,
                 label:       (foundNodeList[1].parents_list[0].parents_list[0].value)
-                    + ":" +   foundNodeList[1].attribute});
+                    + ":" +   foundNodeList[1].attribute ,group:"g_light_yellow"});
             const GANode1 = tpNodes[1];
-
 
             var att0dic = {};
             var att1dic = {};
@@ -587,14 +600,14 @@
                 // nodes from condition0
                 if(i % 2 === 0){
                     let tmpday = { id:foundNodeList[i].parents_list[0].value.split(' ')[0],
-                        label:foundNodeList[i].parents_list[0].value.split(' ')[0]};
+                        label:foundNodeList[i].parents_list[0].value.split(' ')[0], group:"g_default"};
                     let tmpatt = {id:(foundNodeList[i].parents_list[0].value
                             + foundNodeList[i].attribute
                             + foundNodeList[i].value),
                         label: ("time : "
                             + foundNodeList[i].parents_list[0].value
                             + "\nvalue: "
-                            + foundNodeList[i].value)};
+                            + foundNodeList[i].value), group:"g_purple"};
 
                     if(!(foundNodeList[i].parents_list[0].value.split(' ')[0] in daydic )){
                         tpNodes.push(tmpday);
@@ -614,14 +627,14 @@
                 // nodes from condition1
                 else{
                     let tmpday = { id:foundNodeList[i].parents_list[0].value.split(' ')[0],
-                        label:foundNodeList[i].parents_list[0].value.split(' ')[0]};
+                        label:foundNodeList[i].parents_list[0].value.split(' ')[0], group:"g_default"};
                     let tmpatt = {id:(foundNodeList[i].parents_list[0].value
                             + foundNodeList[i].attribute
                             + foundNodeList[i].value),
                         label: ("time : "
                             + foundNodeList[i].parents_list[0].value
                             + "\nvalue: "
-                            + foundNodeList[i].value)};
+                            + foundNodeList[i].value), group:"g_yellow"};
 
                     if(!(foundNodeList[i].parents_list[0].value         in att1dic)){
                         tpNodes.push(tmpatt);
