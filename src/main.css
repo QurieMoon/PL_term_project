@@ -14,15 +14,40 @@ body {
     flex-grow: 1;
 }
 
-.wrapper .viewer #networkViewer {
+.wrapper .viewer .graphViewer{
     height: 700px;
-    border: 1px solid lightgray;
     margin-bottom: 10px;
+}
+
+.wrapper .viewer #mainName{
+    height: 8%;
+    width: 50.5%;
+    float: left;
+}
+
+.wrapper .viewer #subName{
+    height: 8%;
+    width: 49.5%;
+    float: left;
+}
+
+.wrapper .viewer #networkViewer {
+    border: 1px solid lightgray;
+    height : 90%;
+    width: 49.5%;
+    float: left;
+}
+
+.wrapper .viewer #subgraphViewer {
+    border: 1px solid lightgray;
+    height : 90%;
+    width: 49.5%;
+    float: right;
 }
 
 .wrapper .viewer #timeline_visualization {
     flex-grow: 1;
-    overflow: hidden;
+    margin-bottom: 1px;
 }
 
 .wrapper .panel {
@@ -80,4 +105,16 @@ body {
     background: none;
     flex-grow: 1;
     margin-bottom: 0;
+}
+
+.wrapper .panel .group .testrows {
+    height: 540px;
+    overflow: auto;
+    font-size: 15px;
+}
+
+.wrapper .panel .group.last #patternViewer {
+    height: 450px;
+    border: 1px solid lightgray;
+    margin-bottom: 5px;
 }

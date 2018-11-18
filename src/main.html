@@ -30,6 +30,7 @@
         var nodes = null;
         var edges = null;
 
+        var patternNet = null;
         //시각화 초기값
         $(document).ready(() => {
             draw_network();
@@ -82,7 +83,7 @@
                 }
             };
 
-            var data = {nodes: nodes, edges: edges}
+            var data = {nodes: nodes, edges: edges};
 
             //네트워크 구조에 데이터 추가
             network = new vis.Network(container, data, options);
@@ -97,6 +98,7 @@
             $("#loadNode").attr("disabled", true);
             $("#resetNode").attr("disabled", false);
             $("#searchNode").attr("disabled", false);
+            $("#test").attr("disabled", false);
 
             var range = $("#date").val();
             var start_date = new Date(range.split(' ')[0]);
@@ -240,13 +242,309 @@
             nodes.remove(child_node.id);
             edges.remove(get_edge_id(parent_node, child_node));
         }
+        
+        // testfunction: find the pattern concerned with condition(s)
+        function test_func(manager) {
+            //edit here to manipulate test conditions
+
+            var t_gss0 = $("#gssfortest").val();
+            var t_att0 = $("#attfortest").val();
+            var t_min0 = $("#minfortest").val();
+            var t_max0 = $("#maxfortest").val();
+            var foundNodeList0 = find_node(manager, t_gss0, t_att0, t_min0, t_max0);
+            var testResult0 = [];
+            for (const child of foundNodeList0){
+                let tmplist = [];
+                tmplist.push(child.parents_list[0].value);
+                tmplist.push(child.attribute);
+                tmplist.push(child.value);
+                testResult0.push(tmplist);
+            }
+
+
+            //search condition 0
+            if (!document.getElementById("gssfortest1").value){
+                testResult0.unshift("...SEARCHED PATTERN UNDER ONLY 1 CONDITION...");
+                testResult0 = testResult0.join("<br>");
+                $("#testResult").html(testResult0);
+                draw_pattern(foundNodeList0);
+            }
+            //search condition 1
+            else {
+                var t_gss1 = $("#gssfortest1").val();
+                var t_att1 = $("#attfortest1").val();
+                var t_min1 = $("#minfortest1").val();
+                var t_max1 = $("#maxfortest1").val();
+                var foundNodeList1 = find_node(manager, t_gss1, t_att1, t_min1, t_max1);
+
+                var foundNodeList = [];
+                for (const fl0_node of foundNodeList0) {
+                    for (const fl1_node of foundNodeList1){
+                        if (fl0_node.parents_list[0].value.split(' ')[0]
+                            == fl1_node.parents_list[0].value.split(' ')[0]){
+                            // find intersection
+                            foundNodeList.push(fl0_node);
+                            foundNodeList.push(fl1_node);
+                        }
+                    }
+                }
+                var testResult1 = [];
+                for (const child of foundNodeList){
+                    let tmplist = [];
+                    tmplist.push(child.parents_list[0].value);
+                    tmplist.push(child.attribute);
+                    tmplist.push(child.value);
+                    testResult1.push(tmplist);
+                }
+                testResult1.unshift("...SEARCHED PATTERN UNDER 2 CONDITIONS...");
+                testResult1 = testResult1.join("<br>");
+                $("#testResult").html(testResult1);
+                draw_complex_pattern(foundNodeList);
+            }
+        }
+
+        // findnode: find nodes which has specific values,
+        // similar to searchNode of SNmanager.js but not same
+        function find_node(manager, gss, attribute, minValue, maxValue){
+            //var rootNode   = manager.root;
+            var gssNode    = manager.gss[gss];
+            //var targetStartNodeList = [];
+            var targetAttNodeList   = [];
+            for (var startChild of gssNode.children_list){
+                if(startChild.attribute === "start_time"){
+                    for (var attNode of startChild.children_list){
+                        //in case of end_time has to be added
+                        if(attNode.attribute === attribute){
+                            if      (attribute === "end_time"){
+                                var end_time_split  = attNode.value.split(" ");         //e.g. value = "10:30"
+                                var end_time_arr    = end_time_split[1].split(":");     //e.g. split[1] = "10:30"
+                                var end_time        = parseFloat(end_time_arr[0])       //e.g. "10"
+                                    + parseFloat(end_time_arr[1] / 60); //e.g. "30"
+                                //console.log('#end_time_arr[0] : ' + end_time_arr[0] + ' value : ' + attNode.value);
+                                //console.log('#end_time : ' + end_time + ' value : ' + attNode.value);
+                                if (end_time >= minValue &&
+                                    end_time <= maxValue){
+                                    //targetStartNodeList.push(startChild);
+                                    targetAttNodeList.push(attNode);
+                                }
+                            }
+                            else if      (attribute === "rq_time"){
+                                var rq_time_split  = attNode.value.split("H");          //e.g. value = "8H10M"
+                                var rq_time_arr    = rq_time_split[1].split("M");       //e.g. split[1] = "10M"
+                                var rq_time        = parseFloat(rq_time_split[0])       //e.g. "8"
+                                    + parseFloat(rq_time_arr[0] / 60);   //e.g. "10"
+                                if (rq_time >= minValue &&
+                                    rq_time <= maxValue){
+                                    //targetStartNodeList.push(startChild);
+                                    targetAttNodeList.push(attNode);
+                                }
+                            }
+                            else if (typeof minValue == 'number'){
+                                if (attNode.value >= minValue &&
+                                    attNode.value <= maxValue){
+                                    targetAttNodeList.push(attNode);
+                                }
+                            }
+                            else if (typeof minValue == 'string') {
+                                if (attNode.value.indexOf(minValue) != -1) {
+                                    targetAttNodeList.push(attNode);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return targetAttNodeList;
+        }
+
+        //draw_pattern: visualize the simple pattern searched
+        function draw_pattern(foundNodeList){
+            if (patternNet != null) {
+                patternNet.destroy();
+                patternNet = null;
+            }
+            var container = document.getElementById("subgraphViewer");
+            //네트워크 시각화 옵션(크기, 색상)
+            var options = {
+                nodes: {
+                    shape: 'dot',
+                    color: 'rgba(50, 50, 50, 1)',
+                    size: 16
+                },
+                layout: {
+                    randomSeed: 20,
+                    improvedLayout: true
+                },
+                physics: true,
+                interaction: {
+                    tooltipDelay: 200,
+                    hideEdgesOnDrag: false
+                }
+            };
+
+            var tpNodes = [];
+            var tpEdges = [];
+
+            // adding root gss_attribute node
+            var GANode_id = (foundNodeList[0].parents_list[0].parents_list[0].attribute
+                + foundNodeList[0].parents_list[0].parents_list[0].value);
+            tpNodes.push({id: GANode_id,
+                    label: (foundNodeList[0].parents_list[0].parents_list[0].value)
+                    + ":" + foundNodeList[0].attribute});
+            const GANode = tpNodes[0];
+
+            // adding nodes which have been searched
+            for (const patternNode of foundNodeList){
+                //console.log("\npatternNode.value\n"
+                //    + patternNode.value);
+                tpNodes.push({id: (patternNode.parents_list[0].value
+                    + patternNode.attribute
+                    + patternNode.value),
+                    label: ("time : " + patternNode.parents_list[0].value
+                    + "\nvalue: " + patternNode.value)});
+            }
+
+            // adding edges
+            for (let i = 1; i < tpNodes.length; i++){
+                tpEdges.push({id: get_edge_id(GANode, tpNodes[i]),
+                              from: GANode_id, to: tpNodes[i].id});
+            }
+
+            var pNodes = new vis.DataSet(tpNodes);
+            var pEdges = new vis.DataSet(tpEdges);
+            var data = {nodes: pNodes, edges: pEdges};
+
+            //네트워크 구조에 데이터 추가
+            patternNet = new vis.Network(container, data, options);
+            patternNet.fit();
+        }
+
+        //draw_complex_pattern: visualize the complex pattern searched
+        function draw_complex_pattern(foundNodeList){
+            if (patternNet != null) {
+                patternNet.destroy();
+                patternNet = null;
+            }
+            var container = document.getElementById("subgraphViewer");
+            //네트워크 시각화 옵션(크기, 색상)
+            var options = {
+                nodes: {
+                    shape: 'dot',
+                    color: 'rgba(50, 50, 50, 1)',
+                    size: 16
+                },
+                layout: {
+                    randomSeed: 20,
+                    improvedLayout: true
+                },
+                physics: true,
+                interaction: {
+                    tooltipDelay: 200,
+                    hideEdgesOnDrag: false
+                }
+            };
+
+            var tpNodes = [];
+            var tpEdges = [];
+////////
+            // adding root gss_attribute nodes
+            const gss0      = foundNodeList[0].parents_list[0].parents_list[0].value;
+            var GANode0_id = (foundNodeList[0].parents_list[0].parents_list[0].attribute
+                            + foundNodeList[0].parents_list[0].parents_list[0].value);
+            tpNodes.push({id: GANode0_id,
+                label:       (foundNodeList[0].parents_list[0].parents_list[0].value)
+                    + ":" +   foundNodeList[0].attribute});
+            const GANode0 = tpNodes[0];
+
+            const gss1      = foundNodeList[1].parents_list[0].parents_list[0].value;
+            var GANode1_id = (foundNodeList[1].parents_list[0].parents_list[0].attribute
+                            + foundNodeList[1].parents_list[0].parents_list[0].value);
+            tpNodes.push({id: GANode1_id,
+                label:       (foundNodeList[1].parents_list[0].parents_list[0].value)
+                    + ":" +   foundNodeList[1].attribute});
+            const GANode1 = tpNodes[1];
+
+
+            var att0dic = {};
+            var att1dic = {};
+            var daydic  = {};
+
+            // adding nodes which have been searched
+            for (let i = 0; i < foundNodeList.length; i++){
+                // nodes from condition0
+                if(i % 2 === 0){
+                    let tmpday = { id:foundNodeList[i].parents_list[0].value.split(' ')[0],
+                        label:foundNodeList[i].parents_list[0].value.split(' ')[0]};
+                    let tmpatt = {id:(foundNodeList[i].parents_list[0].value
+                            + foundNodeList[i].attribute
+                            + foundNodeList[i].value),
+                        label: ("time : "
+                            + foundNodeList[i].parents_list[0].value
+                            + "\nvalue: "
+                            + foundNodeList[i].value)};
+
+                    if(!(foundNodeList[i].parents_list[0].value.split(' ')[0] in daydic )){
+                        tpNodes.push(tmpday);
+                        daydic[foundNodeList[i].parents_list[0].value.split(' ')[0]] = tmpday;
+                    }
+                    if(!(foundNodeList[i].parents_list[0].value         in att0dic)){
+                        tpNodes.push(tmpatt);
+                        att0dic[(foundNodeList[i].parents_list[0].value)] = tmpatt;
+
+                        // adding edges
+                        tpEdges.push({id: get_edge_id(GANode0, tmpatt),
+                            from: GANode0_id, to: tmpatt.id});
+                        tpEdges.push({id: get_edge_id(tmpatt, tmpday),
+                            from: tmpatt.id, to: tmpday.id});
+                    }
+                }
+                // nodes from condition1
+                else{
+                    let tmpday = { id:foundNodeList[i].parents_list[0].value.split(' ')[0],
+                        label:foundNodeList[i].parents_list[0].value.split(' ')[0]};
+                    let tmpatt = {id:(foundNodeList[i].parents_list[0].value
+                            + foundNodeList[i].attribute
+                            + foundNodeList[i].value),
+                        label: ("time : "
+                            + foundNodeList[i].parents_list[0].value
+                            + "\nvalue: "
+                            + foundNodeList[i].value)};
+
+                    if(!(foundNodeList[i].parents_list[0].value         in att1dic)){
+                        tpNodes.push(tmpatt);
+                        att1dic[(foundNodeList[i].parents_list[0].value)] = tmpatt;
+
+                        // adding edges
+                        tpEdges.push({id: get_edge_id(GANode1, tmpatt),
+                            from: GANode1_id, to: tmpatt.id});
+                        tpEdges.push({id: get_edge_id(tmpatt, tmpday),
+                            from: tmpatt.id, to: tmpday.id});
+                    }
+                }
+
+            }
+////////
+            var pNodes = new vis.DataSet(tpNodes);
+            var pEdges = new vis.DataSet(tpEdges);
+            var data = {nodes: pNodes, edges: pEdges};
+
+            //네트워크 구조에 데이터 추가
+            patternNet = new vis.Network(container, data, options);
+            patternNet.fit();
+        }
+
     </script>
 </head>
 
 <body>
     <div class="wrapper">
         <div class="viewer">
-            <div id="networkViewer"></div>
+            <div class="graphViewer">
+                <div id="mainName"><h1>Main Graph</h1></div>
+                <div id="subName"><h1>Sub Graph</h1></div>
+                <div id="networkViewer"></div>
+                <div id="subgraphViewer"></div>
+            </div>
             <div id="timeline_visualization"></div>
         </div>
 
@@ -271,16 +569,28 @@
             <h1>Pattern Search</h1>
             <div class="group">
                 <div class="row">
-                    <input class="fit" id='gss' type="text" placeholder="gss">
-                    <input class="fit" id='date-hour' type="text" placeholder="yyyy-mm-dd-hour">
-                    <input class="fit" id='attribute' type="text" placeholder="attribute">
-                    <button class="fit" id="searchNode" onclick="loadSearchResult();" disabled>Go</button>
+                    <input class="fit" id='gssfortest' type="text" placeholder="gss0">
+                    <input class="fit" id='attfortest' type="text" placeholder="att0">
+                    <input class="fit" id='minfortest' type="text" placeholder="min0/string">
+                    <input class="fit" id='maxfortest' type="text" placeholder="max0">
                 </div>
-                <div id="searchResult" class="rows"></div>
+                <div class="row">
+                    <input class="fit" id='gssfortest1' type="text" placeholder="gss1">
+                    <input class="fit" id='attfortest1' type="text" placeholder="att1">
+                    <input class="fit" id='minfortest1' type="text" placeholder="min1/string">
+                    <input class="fit" id='maxfortest1' type="text" placeholder="max1">
+                </div>
+                <div class="row">
+                    <button class="fit" id="test" onclick="test_func(manager);" disabled>Search Patterns!</button>
+                </div>
+
             </div>
 
             <h1>Pattern Information</h1>
-            <div class="group last"></div>
+            <div class="group last">
+                <div id="testResult" class="testrows"></div>
+
+            </div>
         </div>
     </div>
 </body>
