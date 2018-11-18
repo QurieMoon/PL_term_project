@@ -349,10 +349,18 @@
                                     targetAttNodeList.push(attNode);
                                 }
                             }
-                            else if (attNode.value >= minValue &&
-                                attNode.value <= maxValue ){
-                                //targetStartNodeList.push(startChild);
-                                targetAttNodeList.push(attNode);
+                            else if (typeof minValue == 'number'){
+                                if (attNode.value >= minValue &&    
+                                    attNode.value <= maxValue){
+                                    //targetStartNodeList.push(startChild);
+                                    targetAttNodeList.push(attNode);
+                                }
+                            }
+                            else if (typeof minValue == 'string'){
+                                if (attNode.value.indexOf(minValue) != -1){
+                                   //targetStartNodeList.push(startChild);
+                                    targetAttNodeList.push(attNode);
+                                }
                             }
                         }
                     }
