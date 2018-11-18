@@ -13,16 +13,27 @@ body {
     flex-direction: column;
     flex-grow: 1;
 }
-
-.wrapper .viewer #networkViewer {
+.wrapper .viewer .graphViewer{
     height: 700px;
-    border: 1px solid lightgray;
     margin-bottom: 10px;
+}
+.wrapper .viewer #networkViewer {
+    border: 1px solid lightgray;
+    height : 100%;
+    width: 49.5%;
+    float: left;
+}
+
+.wrapper .viewer #subgraphViewer {
+    border: 1px solid lightgray;
+    height : 100%;
+    width: 49.5%;
+    float: right;
 }
 
 .wrapper .viewer #timeline_visualization {
     flex-grow: 1;
-    overflow: hidden;
+    margin-bottom: 10px;
 }
 
 .wrapper .panel {
