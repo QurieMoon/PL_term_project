@@ -81,11 +81,11 @@
                     hideEdgesOnDrag: false
                 },
                 groups:{"g_blue":{
-                    color:{
-                        background:'blue'
-                        //border:'maroon'}
-                    }
-                },"g_green":{
+                        color:{
+                            background:'blue'
+                            //border:'maroon'}
+                        }
+                    },"g_green":{
                         color:{
                             background:'green'
                             //border:'maroon'}
@@ -290,7 +290,7 @@
             nodes.remove(child_node.id);
             edges.remove(get_edge_id(parent_node, child_node));
         }
-        
+
         // testfunction: function for some tests
         function test_func(manager) {
             //edit here to manipulate test conditions
@@ -393,7 +393,7 @@
             var GANode_id = (foundNodeList[0].parents_list[0].parents_list[0].attribute
                 + foundNodeList[0].parents_list[0].parents_list[0].value);
             tpNodes.push({id: GANode_id,
-                    label: (foundNodeList[0].parents_list[0].parents_list[0].value)
+                label: (foundNodeList[0].parents_list[0].parents_list[0].value)
                     + ":" + foundNodeList[0].attribute});
             const GANode = tpNodes[0];
 
@@ -402,16 +402,16 @@
                 //console.log("\npatternNode.value\n"
                 //    + patternNode.value);
                 tpNodes.push({id: (patternNode.parents_list[0].value
-                    + patternNode.attribute
-                    + patternNode.value),
+                        + patternNode.attribute
+                        + patternNode.value),
                     label: ("time : " + patternNode.parents_list[0].value
-                    + "\nvalue: " + patternNode.value)});
+                        + "\nvalue: " + patternNode.value)});
             }
 
             // adding edges
             for (let i = 1; i < tpNodes.length; i++){
                 tpEdges.push({id: get_edge_id(GANode, tpNodes[i]),
-                              from: GANode_id, to: tpNodes[i].id});
+                    from: GANode_id, to: tpNodes[i].id});
             }
 
             var pNodes = new vis.DataSet(tpNodes);
@@ -427,47 +427,51 @@
 </head>
 
 <body>
-    <div class="wrapper">
-        <div class="viewer">
+<div class="wrapper">
+    <div class="viewer">
+        <div class="graphViewer">
             <div id="networkViewer"></div>
-            <div id="timeline_visualization"></div>
+            <div id="subgraphViewer"></div>
         </div>
-
-        <div class="panel">
-            <h1>Keyword Input</h1>
-            <div class="group">
-                <div class="row">
-                    <div class="label">Date</div>
-                    <input class="fit" id="date">
-                </div>
-                <div class="row">
-                    <div class="label">Person Index</div>
-                    <input id="personIndex" class="fit" type="number" step="1" min="0" value="1">
-                </div>
-                <div class="row">
-                    <div class="label">Data</div>
-                    <button class="fit" id="loadNode" onclick="loadData();">Load</button>
-                    <button class="fit" id="resetNode" onclick="resetAllNodes();" disabled>Reset</button>
-                </div>
-            </div>
-
-            <h1>Pattern Search</h1>
-            <div class="group">
-                <div class="row">
-                    <input class="fit" id='gssfortest' type="text" placeholder="gssfortest!">
-                    <input class="fit" id='attfortest' type="text" placeholder="attfortest!">
-                    <input class="fit" id='minfortest' type="text" placeholder="minfortest!">
-                    <input class="fit" id='maxfortest' type="text" placeholder="maxfortest!">
-                    <button class="fit" id="test" onclick="test_func(manager);" disabled>Test</button>
-                </div>
-                <div id="testResult" class="testrows"></div>
-            </div>
-
-            <h1>Pattern Information</h1>
-            <div class="group last">
-                <div id="patternViewer"></div>
-            </div>
-        </div>
+        <div id="timeline_visualization"></div>
     </div>
+
+    <div class="panel">
+        <h1>Keyword Input</h1>
+        <div class="group">
+            <div class="row">
+                <div class="label">Date</div>
+                <input class="fit" id="date">
+            </div>
+            <div class="row">
+                <div class="label">Person Index</div>
+                <input id="personIndex" class="fit" type="number" step="1" min="0" value="1">
+            </div>
+            <div class="row">
+                <div class="label">Data</div>
+                <button class="fit" id="loadNode" onclick="loadData();">Load</button>
+                <button class="fit" id="resetNode" onclick="resetAllNodes();" disabled>Reset</button>
+            </div>
+        </div>
+
+        <h1>Pattern Search</h1>
+        <div class="group">
+            <div class="row">
+                <input class="fit" id='gssfortest' type="text" placeholder="gssfortest!">
+                <input class="fit" id='attfortest' type="text" placeholder="attfortest!">
+                <input class="fit" id='minfortest' type="text" placeholder="minfortest!">
+                <input class="fit" id='maxfortest' type="text" placeholder="maxfortest!">
+                <button class="fit" id="test" onclick="test_func(manager);" disabled>Test</button>
+            </div>
+            <div id="testResult" class="testrows"></div>
+        </div>
+
+        <h1>Pattern Information</h1>
+        <div class="group last">
+            <div id="patternViewer"></div>
+        </div>
+
+    </div>
+</div>
 </body>
 </html>
