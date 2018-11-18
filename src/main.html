@@ -246,23 +246,73 @@
         // testfunction: function for some tests
         function test_func(manager) {
             //edit here to manipulate test conditions
-            var t_gss = $("#gssfortest").val();
-            var t_att = $("#attfortest").val();
-            var t_min = $("#minfortest").val();
-            var t_max = $("#maxfortest").val();
-            foundNodeList = find_node(manager, t_gss, t_att, t_min, t_max);
-            var testResult = [];
-            for (const child of foundNodeList){
-                var tmplist = [];
+
+            var t_gss0 = $("#gssfortest").val();
+            var t_att0 = $("#attfortest").val();
+            var t_min0 = $("#minfortest").val();
+            var t_max0 = $("#maxfortest").val();
+            var foundNodeList0 = find_node(manager, t_gss0, t_att0, t_min0, t_max0);
+            var testResult0 = [];
+            for (const child of foundNodeList0){
+                let tmplist = [];
                 tmplist.push(child.parents_list[0].value);
                 tmplist.push(child.attribute);
                 tmplist.push(child.value);
-                testResult.push(tmplist);
+                testResult0.push(tmplist);
             }
-            testResult = testResult.join("<br>");
-            //console.log('\n#testResult :\n' + testResult);
-            $("#testResult").html(testResult);
-            draw_pattern()
+            testResult0 = testResult0.join("<br>");
+
+                        //search condition 0
+            if (!document.getElementById("gssfortest1").value){
+                $("#testResult").html(testResult0);
+                draw_pattern(foundNodeList0);
+            } else {    //search condition 1
+                var t_gss1 = $("#gssfortest1").val();
+                var t_att1 = $("#attfortest1").val();
+                var t_min1 = $("#minfortest1").val();
+                var t_max1 = $("#maxfortest1").val();
+                var foundNodeList1 = find_node(manager, t_gss1, t_att1, t_min1, t_max1);
+
+                var foundNodeList = [];
+                for (const fl0_node of foundNodeList0) {
+                    for (const fl1_node of foundNodeList1){
+                        if (fl0_node.parents_list[0].value.split(' ')[0]
+                            == fl1_node.parents_list[0].value.split(' ')[0]){
+                            // find intersection
+                            foundNodeList.push(fl0_node);
+                            foundNodeList.push(fl1_node);
+                        }
+                    }
+                }
+                var testResult1 = [];
+                for (const child of foundNodeList){
+                    let tmplist = [];
+                    tmplist.push(child.parents_list[0].value);
+                    tmplist.push(child.attribute);
+                    tmplist.push(child.value);
+                    testResult1.push(tmplist);
+                }
+                testResult1 = testResult1.join("<br>");
+                $("#testResult").html(testResult1);
+                draw_pattern(foundNodeList0);
+/*
+                var testResult1 = [];
+                for (const child of foundNodeList1){
+                    let tmplist = [];
+                    tmplist.push(child.parents_list[0].value);
+                    tmplist.push(child.attribute);
+                    tmplist.push(child.value);
+                    testResult1.push(tmplist);
+                }
+                testResult1 = testResult1.join("<br>");
+                var testResult = [];
+                testResult.push(testResult0);
+                testResult.push(testResult1);
+                testResult = testResult.join("<br>");
+                $("#testResult").html(testResult);
+                draw_pattern(foundNodeList0);
+*/
+            }
         }
 
         // findnode: find nodes which has specific values,
@@ -319,8 +369,8 @@
             return targetAttNodeList;
         }
 
-        //draw_pattern: visualize the pattern searched
-        function draw_pattern(){
+        //draw_pattern: visualize the simple pattern searched
+        function draw_pattern(foundNodeList){
             if (patternNet != null) {
                 patternNet.destroy();
                 patternNet = null;
@@ -412,11 +462,19 @@
             <h1>Pattern Search</h1>
             <div class="group">
                 <div class="row">
-                    <input class="fit" id='gssfortest' type="text" placeholder="gssfortest!">
-                    <input class="fit" id='attfortest' type="text" placeholder="attfortest!">
-                    <input class="fit" id='minfortest' type="text" placeholder="minfortest!">
-                    <input class="fit" id='maxfortest' type="text" placeholder="maxfortest!">
-                    <button class="fit" id="test" onclick="test_func(manager);" disabled>Test</button>
+                    <input class="fit" id='gssfortest' type="text" placeholder="gss0">
+                    <input class="fit" id='attfortest' type="text" placeholder="att0">
+                    <input class="fit" id='minfortest' type="text" placeholder="min0/string">
+                    <input class="fit" id='maxfortest' type="text" placeholder="max0">
+                </div>
+                <div class="row">
+                    <input class="fit" id='gssfortest1' type="text" placeholder="gss1">
+                    <input class="fit" id='attfortest1' type="text" placeholder="att1">
+                    <input class="fit" id='minfortest1' type="text" placeholder="min1/string">
+                    <input class="fit" id='maxfortest1' type="text" placeholder="max1">
+                </div>
+                <div class="row">
+                    <button class="fit" id="test" onclick="test_func(manager);" disabled>Search Patterns!</button>
                 </div>
                 <div id="testResult" class="testrows"></div>
             </div>
